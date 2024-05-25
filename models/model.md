@@ -1,0 +1,1 @@
+Modeller bu klasör içerisine tanımlanacak.
