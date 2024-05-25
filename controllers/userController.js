@@ -1,5 +1,12 @@
-// UserController fonksiyonları eklenecek
+const User = require("../models/user.js");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
+const { sendVerificationEmail } = require("../utils/sendVerificationEmail.js");
+
+
+// UserController fonksiyonları eklenecek
 const register = async (req, res) => {
     const { password } = req.body;
     const saltRounds = 10;
@@ -61,11 +68,43 @@ const register = async (req, res) => {
     }
   };
 
+  // Kayıtta ve şifre güncellemede kullanıcıya gerekli doğrulama e-postasını gönderir.
+// 6 haneli bir kod oluşturur ve bunu cevap olarak döner.
+const sendEmailVerification = async (req, res) => {
+  const { emailAddress, phoneNumber, type } = req.body;
+  let filters;
+
+  if (type === "phoneNumberUpdate") {
+    filters = [{ phoneNumber }];
+  } else if (type === "emailAddressUpdate") {
+    filters = [{ emailAddress }];
+  } else {
+    filters = [{ emailAddress }, { phoneNumber }];
+  }
+  userExists = await User.findOne({
+    $or: filters,
+  });
+  if (!userExists) {
+    const verificationCode = await sendVerificationEmail(emailAddress);
+    return res.status(200).json({
+      status: "success",
+      message: "Verification email sent!",
+      data: verificationCode,
+    });
+  } else {
+    return res.status(500).json({
+      status: "error",
+      message: "User already exists!",
+    });
+  }
+};
+
 
 
 
 
   module.exports = {
     register,
-    getUser
+    getUser,
+    sendEmailVerification
   }

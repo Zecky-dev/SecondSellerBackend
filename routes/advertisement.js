@@ -4,6 +4,9 @@ const Router = express.Router();
 const {
   createAdvertisement,
   filterAdvertisements,
+  updateAdvertisement,
+  removeAdvertisement
+
 } = require("../controllers/advertisementController");
 
 const validationMiddleWare = require("../middlewares/validationMiddleware");
@@ -23,6 +26,16 @@ Router.post(
 
 // Belirli kriterlere göre ilanları filtreler. (GET) 
 Router.get('/filter', filterAdvertisements)
+
+// ID'si verilen ilanı günceller ve güncellenmiş halini döndürür. (PUT)
+Router.put(
+  "/:id",
+  updateAdvertisement
+);
+
+// Belirlenen ilan ID'sine sahip olan ilanı siler. (DELETE)
+Router.delete("/remove", removeAdvertisement);
+
 
 
 module.exports = Router;
