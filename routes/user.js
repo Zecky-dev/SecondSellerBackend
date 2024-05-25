@@ -7,6 +7,7 @@ const authenticateToken = require("../middlewares/authorizationMiddleware.js");
 const {
   register,
   getUser,
+  sendEmailVerification,
   updateUser,
   changePassword,
   blockUser,
@@ -26,5 +27,8 @@ Router.put("/block", blockUser);
 
 // Kullanıcı kaydı için kullanılır. (POST)
 Router.post("/register", register);
+
+// E-posta gönderimi için kullanılır. (POST)
+Router.post("/sendEmailVerification", sendEmailVerification);
 
 module.exports = Router;
