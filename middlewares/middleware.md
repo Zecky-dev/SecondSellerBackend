@@ -1,1 +1,0 @@
-Middleware'ler bu klasör altında tanımlanacak.
