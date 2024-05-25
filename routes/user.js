@@ -1,10 +1,8 @@
 const express = require("express");
 const Router = express.Router();
 
-const validationMiddleware = require("../middlewares/validationMiddleware.js");
-const {
-  registerSchema,
-} = require("../utils/validation/schemas.js");
+const authenticateToken = require("../middlewares/authorizationMiddleware.js");
+
 
 // User route'ları buraya eklenecek
 const {
@@ -17,7 +15,7 @@ const {
 Router.get("/:id", authenticateToken, getUser);
 
 // Kullanıcı kaydı için kullanılır. (POST)
-Router.post("/register", validationMiddleware(registerSchema), register);
+Router.post("/register", register);
 
 // E-posta gönderimi için kullanılır. (POST)
 Router.post("/sendEmailVerification", sendEmailVerification);
