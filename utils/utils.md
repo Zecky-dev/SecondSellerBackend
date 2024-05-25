@@ -1,1 +1,0 @@
-Yardımcı fonksiyonlar ve dosyalar bu klasör içerisinde tanımlanacak.
