@@ -25,6 +25,36 @@ const createAdvertisement = async (req, res) => {
   }
 };
 
+// Kullanıcının ID'sine bağlı olan ilanları getirir
+const getAdvertisementsByUserID = async (req, res) => {
+  try {
+    const userID = req.query.id;
+    const user = await User.findById(userID);
+    const userPosts = user.advertisements;
+    const favoriteAdvertisementIDs = user.favorites;
+    const ownAdvertisements = await Advertisement.find({
+      _id: { $in: userPosts },
+    });
+    const favoriteAdvertisements = await Advertisement.find({
+      _id: { $in: favoriteAdvertisementIDs },
+    });
+    return res.status(200).json({
+      status: "success",
+      message: "User advertisements fetched successfully!",
+      data: {
+        ownAdvertisements,
+        favoriteAdvertisements,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error!",
+      error: err.message,
+    });
+  }
+};
+
 const filterAdvertisements = async (req, res) => {
   try {
     const queryParameters = req.query;
@@ -183,4 +213,5 @@ module.exports = {
   filterAdvertisements,
   removeAdvertisement,
   getAllAdvertisements,
+  getAdvertisementsByUserID,
 };

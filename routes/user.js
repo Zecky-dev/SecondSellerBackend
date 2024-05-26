@@ -11,6 +11,8 @@ const {
   sendEmailVerification,
   favoriteUnfavorite,
   updateUser,
+  passwordReset,
+  updatePassword,
   changePassword,
   blockUser,
 } = require("../controllers/userController.js");
@@ -23,6 +25,12 @@ Router.put("/:id/updateUser", updateUser);
 
 // Kullanıcının şifresini güncellemek için kullanılır. (PUT)
 Router.put("/:id/changePassword", changePassword);
+
+//Kullanıcının yeni şifresini güncellemek için kullanılır.
+Router.put("/updatePassword",updatePassword)
+
+//Şifresini değiştirecek kullanıcıya aktivasyon kodu gönderir
+Router.get("/passwordReset", passwordReset);
 
 Router.put("/favoriteUnfavorite", favoriteUnfavorite);
 

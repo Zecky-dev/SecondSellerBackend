@@ -197,6 +197,61 @@ const updateUser = async (req, res) => {
   }
 };
 
+const updatePassword = async (req, res) => {
+  const { newPassword, emailAddress } = req.body;
+
+  const saltRounds = 10;
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    await User.findOneAndUpdate({ emailAddress }, { password: hashedPassword }, {
+      returnDocument: "after",
+    })
+    return res.status(200).json({
+      status: "success",
+      message: "Password change successful!",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while registering the user.",
+      error: err.message,
+    });
+  }
+
+}
+
+const passwordReset = async (req, res) => {
+  const { emailAddress } = req.query;
+  try {
+    const user = await User.findOne({ emailAddress });
+    if (user) {
+      const verificationCode = await sendResetPasswordEmail(emailAddress)
+      const resetCode = {
+        data: verificationCode
+      };
+      return res.status(200).json({
+        status: "success",
+        message: "Password reset email sent!",
+        data: resetCode.data,
+      });
+
+    } else {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User not found!',
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'An error occurred while attempting to reset password.',
+      error: err.message,
+    });
+  }
+};
+
+
 const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const userID = req.params.body;
@@ -277,4 +332,6 @@ module.exports = {
   updateUser,
   changePassword,
   blockUser,
+  passwordReset,
+  updatePassword
 };

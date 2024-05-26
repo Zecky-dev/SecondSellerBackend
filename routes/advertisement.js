@@ -8,6 +8,7 @@ const {
   updateAdvertisement,
   removeAdvertisement,
   getAllAdvertisements,
+  getAdvertisementsByUserID,
 } = require("../controllers/advertisementController");
 
 const authenticateToken = require("../middlewares/authorizationMiddleware.js");
@@ -17,6 +18,9 @@ Router.use(authenticateToken);
 
 // Bütün ilanları getirmek için kullanılır. (GET)
 Router.get("/", getAllAdvertisements);
+
+// advertisement/user?id={kullaniciID}
+Router.get("/user", getAdvertisementsByUserID); 
 
 // Yeni bir ilan oluşturur ve ilanı oluşturan kullanıcının ilanlarına ekler. (POST)
 Router.post("/create", createAdvertisement);
