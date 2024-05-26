@@ -6,8 +6,10 @@ const authenticateToken = require("../middlewares/authorizationMiddleware.js");
 // User route'ları buraya eklenecek
 const {
   register,
+  login,
   getUser,
   sendEmailVerification,
+  favoriteUnfavorite,
   updateUser,
   changePassword,
   blockUser,
@@ -22,8 +24,13 @@ Router.put("/:id/updateUser", updateUser);
 // Kullanıcının şifresini güncellemek için kullanılır. (PUT)
 Router.put("/:id/changePassword", changePassword);
 
+Router.put("/favoriteUnfavorite", favoriteUnfavorite);
+
 // Bir kullanıcıyı block'lamak için kullanılır.
 Router.put("/block", blockUser);
+
+// Kullanıcı girişi için kullanılır.
+Router.post("/login", login);
 
 // Kullanıcı kaydı için kullanılır. (POST)
 Router.post("/register", register);

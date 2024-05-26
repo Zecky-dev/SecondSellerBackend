@@ -40,6 +40,52 @@ const register = async (req, res) => {
   }
 };
 
+// E-posta ve şifre kullanarak giriş işlemi yapar, kullanıcı id'sini kullanarak bir jwt tokeni üretir ve giriş ile birlikte o tokeni döndürür
+const login = async (req, res) => {
+  try {
+    const { emailAddress, password } = req.body;
+    const user = await User.findOne({ emailAddress });
+    if (user) {
+      if (!user.activeStatus) {
+        return res.status(401).json({
+          status: "error",
+          message: "Inactive user!",
+      });
+      }
+      const passwordValid = await bcrypt.compare(password, user.password);
+      if (passwordValid) {
+        const jwtToken = jwt.sign(
+          { userId: user._id },
+          process.env.JWT_SECRET_TOKEN,
+          { expiresIn: "24h" }
+        );
+        return res.status(200).json({
+          status: "success",
+          message: "Login successful!",
+          token: jwtToken,
+        });
+      } else {
+        return res.status(401).json({
+          status: "error",
+          message: "E-mail address or password is invalid!",
+        });
+      }
+    } else {
+      return res.status(401).json({
+        status: "error",
+        message: "E-mail address or password is invalid!",
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while registering the user.",
+      error: err.message,
+    });
+  }
+};
+
+
 const getUser = async (req, res) => {
   try {
     const userID = req.params.id;
@@ -94,6 +140,39 @@ const sendEmailVerification = async (req, res) => {
     return res.status(500).json({
       status: "error",
       message: "User already exists!",
+    });
+  }
+};
+
+// Eğer ilan favoride değilse favoriye ekler, favoride ise favoriden çıkarır.
+const favoriteUnfavorite = async (req, res) => {
+  const { userID, advertisementID } = req.body;
+  try {
+    let user = await User.findById(userID);
+    const userFavorites = user.favorites;
+    if (userFavorites.includes(advertisementID)) {
+      user = await User.findByIdAndUpdate(
+        userID,
+        { $pull: { favorites: advertisementID } },
+        { returnDocument: "after" }
+      );
+    } else {
+      user = await User.findByIdAndUpdate(
+        userID,
+        { $push: { favorites: advertisementID } },
+        { returnDocument: "after" }
+      );
+    }
+    return res.status(200).json({
+      status: "success",
+      message: "Advertisement is added to favorites!",
+      data: user.favorites,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "error",
+      message: "Error while favorite/unfavorite.",
+      error: err.message,
     });
   }
 };
@@ -191,8 +270,10 @@ const blockUser = async (req, res) => {
 
 module.exports = {
   register,
+  login,
   getUser,
   sendEmailVerification,
+  favoriteUnfavorite,
   updateUser,
   changePassword,
   blockUser,

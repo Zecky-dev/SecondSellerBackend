@@ -2,6 +2,7 @@ const express = require("express");
 const Router = express.Router();
 
 const {
+  getAdvertisement,
   createAdvertisement,
   filterAdvertisements,
   updateAdvertisement,
@@ -22,6 +23,9 @@ Router.post("/create", createAdvertisement);
 
 // Belirli kriterlere göre ilanları filtreler. (GET)
 Router.get("/filter", filterAdvertisements);
+
+// Belirli bir kullanıcının favori ilanlarını ve sahip olduğu ilanları döndürür.
+Router.get("/:id", getAdvertisement); 
 
 // ID'si verilen ilanı günceller ve güncellenmiş halini döndürür. (PUT)
 Router.put("/:id", updateAdvertisement);

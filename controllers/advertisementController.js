@@ -108,6 +108,30 @@ const updateAdvertisement = async (req, res) => {
   }
 };
 
+const getAdvertisement = async (req, res) => {
+  try {
+    const advertisementID = req.params.id;
+    const advertisement = await Advertisement.findById(advertisementID);
+    if (!advertisement) {
+      return res.status(404).json({
+        status: "error",
+        message: "Advertisement not found!",
+      });
+    }
+    return res.status(200).json({
+      status: "success",
+      message: "Advertisement fetched successfully!",
+      data: advertisement,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error!",
+      error: err.message,
+    });
+  }
+};
+
 // ID'si verilen ilanı siler
 const removeAdvertisement = async (req, res) => {
   try {
@@ -153,6 +177,7 @@ const getAllAdvertisements = async (req, res) => {
 };
 
 module.exports = {
+  getAdvertisement,
   createAdvertisement,
   updateAdvertisement,
   filterAdvertisements,
