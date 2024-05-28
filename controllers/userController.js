@@ -12,7 +12,12 @@ const register = async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const userInfo = { ...req.body, password: hashedPassword };
-    const existingUser = await User.findOne({ emailAddress: userInfo.email });
+    const existingUser = await User.findOne({
+      $or: [
+        { emailAddress: userInfo.emailAddress },
+        { phoneNumber: userInfo.phoneNumber },
+      ],
+    });
     if (!existingUser) {
       const createdUser = await User.create(userInfo);
       const token = jwt.sign(
@@ -22,19 +27,19 @@ const register = async (req, res) => {
       );
       return res.status(201).json({
         status: "success",
-        message: "User creation successful!",
+        message: "Kullanıcı oluşturuldu!",
         token,
       });
     } else {
       return res.status(409).json({
         status: "error",
-        message: "User already exist",
+        message: "Kullanıcı zaten mevcut",
       });
     }
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: err.response.data,
+      message: "Kullanıcı oluşturulurken bir hata meudana geldi!",
       error: err.response.data,
     });
   }
@@ -49,8 +54,8 @@ const login = async (req, res) => {
       if (!user.activeStatus) {
         return res.status(401).json({
           status: "error",
-          message: "Inactive user!",
-      });
+          message: "Aktif olmayan kullanıcı!",
+        });
       }
       const passwordValid = await bcrypt.compare(password, user.password);
       if (passwordValid) {
@@ -61,30 +66,29 @@ const login = async (req, res) => {
         );
         return res.status(200).json({
           status: "success",
-          message: "Login successful!",
+          message: "Giriş başarılı!",
           token: jwtToken,
         });
       } else {
         return res.status(401).json({
           status: "error",
-          message: "E-mail address or password is invalid!",
+          message: "E-posta adresi veya şifre hatalı!",
         });
       }
     } else {
       return res.status(401).json({
         status: "error",
-        message: "E-mail address or password is invalid!",
+        message: "E-posta adresi veya şifre hatalı!",
       });
     }
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "An error occurred while registering the user.",
+      message: "Giriş yaparken bir hata meydana geldi.",
       error: err.message,
     });
   }
 };
-
 
 const getUser = async (req, res) => {
   try {
@@ -94,20 +98,20 @@ const getUser = async (req, res) => {
     // Eğer user null ise, 404 Not Found yanıtı döndür
     if (!user) {
       return res.status(404).json({
-        status: "Error",
-        message: "User not found",
+        status: "error",
+        message: "Kullanıcı bulunamadı!",
       });
     }
 
     return res.status(200).json({
       status: "success",
-      message: "User fetched successfully!",
+      message: "Kullanıcı getirildi!",
       data: user,
     });
   } catch (err) {
     return res.status(500).json({
-      status: "Error",
-      message: "Error while fetching the user",
+      status: "error",
+      message: "Kullanıcı getirilirken hata meydana geldi!",
       error: err.message,
     });
   }
@@ -133,13 +137,13 @@ const sendEmailVerification = async (req, res) => {
     const verificationCode = await sendVerificationEmail(emailAddress);
     return res.status(200).json({
       status: "success",
-      message: "Verification email sent!",
+      message: "Doğrulama e-posta'sı gönderildi!",
       data: verificationCode,
     });
   } else {
     return res.status(500).json({
       status: "error",
-      message: "User already exists!",
+      message: "Kullanıcı zaten kayıtlı!",
     });
   }
 };
@@ -149,8 +153,8 @@ const favoriteUnfavorite = async (req, res) => {
   const { userID, advertisementID } = req.body;
   try {
     let user = await User.findById(userID);
-    const userFavorites = user.favorites;
-    if (userFavorites.includes(advertisementID)) {
+    const isInclude = user.favorites.includes(advertisementID);
+    if (isInclude) {
       user = await User.findByIdAndUpdate(
         userID,
         { $pull: { favorites: advertisementID } },
@@ -165,13 +169,17 @@ const favoriteUnfavorite = async (req, res) => {
     }
     return res.status(200).json({
       status: "success",
-      message: "Advertisement is added to favorites!",
+      message: isInclude
+        ? "İlan favorilerden kaldırıldı!"
+        : "İlan favorilerden kaldırıldı!",
       data: user.favorites,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Error while favorite/unfavorite.",
+      message: `İlan ${
+        isInclude ? "favorilerden kaldırılırken" : "favorilere eklenirken"
+      } hata meydana geldi!`,
       error: err.message,
     });
   }
@@ -183,15 +191,23 @@ const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(userID, req.body, {
       returnDocument: "after",
     });
+
+    if (!updateUser) {
+      return res.status(200).json({
+        status: "error",
+        message: "Kullanıcı bulunamadı.",
+      });
+    }
+
     return res.status(200).json({
       status: "success",
-      message: "User successfully updated.",
+      message: "Kullanıcı güncellendi.",
       data: updatedUser,
     });
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "Internal server error!",
+      message: "Sunucu hatası!",
       error: err.message,
     });
   }
@@ -204,53 +220,62 @@ const updatePassword = async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-    await User.findOneAndUpdate({ emailAddress }, { password: hashedPassword }, {
-      returnDocument: "after",
-    })
+    const updatedUser = await User.findOneAndUpdate(
+      { emailAddress },
+      { password: hashedPassword },
+      {
+        returnDocument: "after",
+      }
+    );
+
+    if (!updatedUser) {
+      return res.status(200).json({
+        status: "error",
+        message: "Kullanıcı bulunamadı!",
+      });
+    }
+
     return res.status(200).json({
       status: "success",
-      message: "Password change successful!",
+      message: "Şifre güncellendi!",
     });
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "An error occurred while registering the user.",
+      message: "Şifre güncellenirken bir hata meydana geldi!",
       error: err.message,
     });
   }
-
-}
+};
 
 const passwordReset = async (req, res) => {
   const { emailAddress } = req.query;
   try {
     const user = await User.findOne({ emailAddress });
     if (user) {
-      const verificationCode = await sendResetPasswordEmail(emailAddress)
+      const verificationCode = await sendResetPasswordEmail(emailAddress);
       const resetCode = {
-        data: verificationCode
+        data: verificationCode,
       };
       return res.status(200).json({
         status: "success",
-        message: "Password reset email sent!",
+        message: "Şifre sıfırlama e-posta'sı gönderildi!",
         data: resetCode.data,
       });
-
     } else {
       return res.status(404).json({
-        status: 'error',
-        message: 'User not found!',
+        status: "error",
+        message: "Kullanıcı bulunamadı!",
       });
     }
   } catch (err) {
     return res.status(500).json({
-      status: 'error',
-      message: 'An error occurred while attempting to reset password.',
+      status: "error",
+      message: "Şifre sırıflama sırasında hata meydana geldi.",
       error: err.message,
     });
   }
 };
-
 
 const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
@@ -258,6 +283,12 @@ const changePassword = async (req, res) => {
   const saltRounds = 10;
   try {
     const user = await User.findById(userID);
+    if (!user) {
+      return res.status(200).json({
+        status: "error",
+        message: "Kullanıcı bulunamadı!",
+      });
+    }
     const passwordValid = await bcrypt.compare(oldPassword, user.password);
     if (passwordValid) {
       const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
@@ -273,19 +304,19 @@ const changePassword = async (req, res) => {
       });
       return res.status(200).json({
         status: "success",
-        message: "Password change successful!",
+        message: "Şifre değiştirme başarılı!",
         data: token,
       });
     } else {
       return res.status(500).json({
         status: "error",
-        message: "Invalid password!",
+        message: "Geçersiz şifre!",
       });
     }
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "An error occurred while registering the user.",
+      message: "Şifre değiştirilirken bir hata meydana geldi.",
       error: err.message,
     });
   }
@@ -295,8 +326,8 @@ const blockUser = async (req, res) => {
   const { id, from } = req.query;
   try {
     let user = await User.findById(from);
-    const blockedUsers = user.blocked;
-    if (blockedUsers.includes(id)) {
+    const isInclude = user.blocked.includes(id);
+    if (isInclude) {
       user = await User.findByIdAndUpdate(
         from,
         { $pull: { blocked: id } },
@@ -311,13 +342,15 @@ const blockUser = async (req, res) => {
     }
     return res.status(200).json({
       status: "success",
-      message: "User blocked successfully!",
+      message: isInclude
+        ? "Kullanıcının engeli kaldırıldı!"
+        : "Kullanıcı engellendi!",
       data: user,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Error while block",
+      message: "Engelleme sırasında hata meydana geldi!",
       error: err.message,
     });
   }
@@ -333,5 +366,5 @@ module.exports = {
   changePassword,
   blockUser,
   passwordReset,
-  updatePassword
+  updatePassword,
 };

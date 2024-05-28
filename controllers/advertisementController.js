@@ -13,13 +13,13 @@ const createAdvertisement = async (req, res) => {
     });
     return res.status(201).json({
       status: "success",
-      message: "Advertisement created successfully!",
+      message: "İlan oluşturuldu!",
       data: newAdvertisement,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Internal server error!",
+      message: "Sunucu hatası!",
       error: err.message,
     });
   }
@@ -40,7 +40,7 @@ const getAdvertisementsByUserID = async (req, res) => {
     });
     return res.status(200).json({
       status: "success",
-      message: "User advertisements fetched successfully!",
+      message: "Kullanıcı ilanları getirildi!",
       data: {
         ownAdvertisements,
         favoriteAdvertisements,
@@ -49,7 +49,7 @@ const getAdvertisementsByUserID = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Internal server error!",
+      message: "Sunucu hatası!",
       error: err.message,
     });
   }
@@ -93,15 +93,15 @@ const filterAdvertisements = async (req, res) => {
     const filteredAdvertisements = await Advertisement.find(filter)
       .sort(sort)
       .exec();
-    return res.status(201).json({
+    return res.status(200).json({
       status: "success",
-      message: "Filtered advertisements are fetched successfully!",
+      message: "Filtrelenmiş ilanlar getirildi!",
       data: filteredAdvertisements,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "An error occurred while filtering advertisements!",
+      message: "İlanlar filtrelenirken bir hata meydana geldi!",
       error: err.response.data,
     });
   }
@@ -120,19 +120,19 @@ const updateAdvertisement = async (req, res) => {
     if (!updatedAdvertisement) {
       return res.status(404).json({
         status: "error",
-        message: "Advertisement not found!",
+        message: "İlan bulunamadı!",
       });
     }
 
     return res.status(200).json({
       status: "success",
-      message: "Advertisement updated successfully!",
+      message: "İlan güncellendi!",
       data: updatedAdvertisement,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Internal server error!",
+      message: "Sunucu hatası!",
       error: err.message,
     });
   }
@@ -145,18 +145,18 @@ const getAdvertisement = async (req, res) => {
     if (!advertisement) {
       return res.status(404).json({
         status: "error",
-        message: "Advertisement not found!",
+        message: "İlan bulunamadı!",
       });
     }
     return res.status(200).json({
       status: "success",
-      message: "Advertisement fetched successfully!",
+      message: "İlan getirildi!",
       data: advertisement,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Internal server error!",
+      message: "Sunucu hatası!",
       error: err.message,
     });
   }
@@ -172,18 +172,18 @@ const removeAdvertisement = async (req, res) => {
     if (!deletedAdvertisement) {
       return res.status(404).json({
         status: "error",
-        message: "Advertisement not found!",
+        message: "İlan bulunamadı!",
       });
     }
     return res.status(200).json({
       status: "success",
-      message: "Advertisement deleted successfully!",
+      message: "İlan silindi!",
       data: deletedAdvertisement,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Internal server error!",
+      message: "Sunucu hatası!",
       error: err.message,
     });
   }
@@ -194,13 +194,13 @@ const getAllAdvertisements = async (req, res) => {
     const advertisements = await Advertisement.find({});
     return res.status(200).json({
       status: "success",
-      message: "All advertisements fetched successfully!",
+      message: "Bütün ilanlar getirildi!",
       data: advertisements,
     });
   } catch (err) {
     return res.status(500).json({
       status: "error",
-      message: "Internal server error!",
+      message: "Sunucu hatası!",
       error: err.message,
     });
   }
