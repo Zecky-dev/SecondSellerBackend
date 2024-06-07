@@ -193,7 +193,7 @@ const updateUser = async (req, res) => {
     });
 
     if (!updateUser) {
-      return res.status(200).json({
+      return res.status(404).json({
         status: "error",
         message: "Kullanıcı bulunamadı.",
       });
@@ -207,7 +207,7 @@ const updateUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "Sunucu hatası!",
+      message: "Kullanıcı güncellenirken hata meydana geldi!",
       error: err.message,
     });
   }
@@ -229,7 +229,7 @@ const updatePassword = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(200).json({
+      return res.status(404).json({
         status: "error",
         message: "Kullanıcı bulunamadı!",
       });
@@ -242,7 +242,7 @@ const updatePassword = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "Şifre güncellenirken bir hata meydana geldi!",
+      message: "Şifre güncellenirken hata meydana geldi!",
       error: err.message,
     });
   }
