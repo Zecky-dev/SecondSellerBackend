@@ -2,6 +2,9 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const opn = require('opn');
+const swaggerDocs = require('./swagger.js')
+
 
 // Configs
 const { PORT } = require("./config/index.js");
@@ -12,6 +15,7 @@ const { connectDB } = require("./database/db.js");
 const IndexRoute = require("./routes/index.js");
 const UserRoutes = require("./routes/user.js");
 const AdvertisementRoutes = require("./routes/advertisement.js");
+
 
 const app = express();
 
@@ -33,4 +37,6 @@ connectDB();
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is listening  on port ${PORT}`);
+  swaggerDocs(app,PORT)
+  opn(`http://localhost:${PORT}/docs`)
 });
