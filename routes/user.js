@@ -77,7 +77,7 @@ const {
  *                   example: Hata mesajı
  */
 
-Router.get("/:id", authenticateToken, getUser);
+Router.get("/:id", getUser);
 
 /**
  * PUT /user/{id}/updateUser
@@ -147,7 +147,7 @@ Router.get("/:id", authenticateToken, getUser);
  *                   example: "Hata mesajı"
  */
 
-Router.put("/:id/updateUser", authenticateToken, updateUser);
+Router.put("/:id/updateUser", updateUser);
 
 /**
  * PUT /user/{id}/changePassword
@@ -237,7 +237,7 @@ Router.put("/:id/updateUser", authenticateToken, updateUser);
  */
 
 
-Router.put("/:id/changePassword", authenticateToken , changePassword);
+Router.put("/:id/changePassword", changePassword);
 
 /**
  * POST /user/updatePassword
@@ -477,7 +477,7 @@ Router.post("/login", login);
 
 Router.post("/register", register);
 
-Router.put("/favoriteUnfavorite", authenticateToken ,favoriteUnfavorite);
+Router.put("/favoriteUnfavorite" , favoriteUnfavorite);
 Router.put("/block", authenticateToken ,blockUser);
 Router.get("/passwordReset", passwordReset);
 Router.post("/sendEmailVerification", sendEmailVerification);

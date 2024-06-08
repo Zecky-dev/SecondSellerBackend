@@ -94,7 +94,6 @@ const getUser = async (req, res) => {
   try {
     const userID = req.params.id;
     const user = await User.findById(userID);
-
     // Eğer user null ise, 404 Not Found yanıtı döndür
     if (!user) {
       return res.status(404).json({
@@ -279,12 +278,12 @@ const passwordReset = async (req, res) => {
 
 const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-  const userID = req.params.body;
+  const userID = req.params.id;
   const saltRounds = 10;
   try {
     const user = await User.findById(userID);
     if (!user) {
-      return res.status(200).json({
+      return res.status(404).json({
         status: "error",
         message: "Kullanıcı bulunamadı!",
       });
