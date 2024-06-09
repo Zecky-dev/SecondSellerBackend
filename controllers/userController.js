@@ -170,7 +170,7 @@ const favoriteUnfavorite = async (req, res) => {
       status: "success",
       message: isInclude
         ? "İlan favorilerden kaldırıldı!"
-        : "İlan favorilerden kaldırıldı!",
+        : "İlan favorilere eklendi!",
       data: user.favorites,
     });
   } catch (err) {
