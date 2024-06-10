@@ -68,6 +68,7 @@ const login = async (req, res) => {
           status: "success",
           message: "Giriş başarılı!",
           token: jwtToken,
+          id: user._id,
         });
       } else {
         return res.status(401).json({
